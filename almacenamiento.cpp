@@ -5,6 +5,7 @@
 
 using namespace std;
 
+void menu();
 bool ConsultaPrimo(int num);
 int sigPrimo(int val);
 int fd(string key, int n);
@@ -12,32 +13,116 @@ int fd(string key, int n);
 template<typename T>
 class Table{
 private:
-    list<string> tables;
+    string name;
+    list<string> *colums;
     template <typename U>
-    friend class Objeto;
+    friend class Database;
 public:
-    Table(){}
+    Table(){
+        name="";
+        colums=new list<string>[1];
+    }
+    Table(string t){
+        name=t;
+        colums=new list<string>[1];
+    }
+    void insert(string columna){
+        colums->push_back(columna);
+    }
+
+    void insertData(string bd,string tabla){
+        fstream archivo;
+        archivo.open("BasesDeDatos/"+bd+"/"+tabla+".txt",ios::app);
+        archivo<<endl;
+        for (list<string>::iterator it = colums->begin(); it != colums->end(); ++it)
+        {
+            string data;
+            cout<<(*it)<<": ";
+            getline(cin,data);
+            archivo<<data<<"\t\t";
+        }
+        archivo<<endl;
+        archivo.close();
+    }
 };
 
 template <typename T>
-class Objeto
+class Database
 {
 private:
     string key;
-    T value;
+    list< Table<T> > *tables;
+    
     template <typename U>
     friend class Hash;
 
 public:
-    Objeto()
+    Database()
     {
         key = "";
-        value = 0;
+        tables= new list< Table<T> > [1];
     }
-    Objeto(string k, T val)
+    Database(string k)
     {
         key = k;
-        value = val;
+        tables= new list< Table<T> > [1];
+    }
+    void insertTable(string name,string database)
+    {
+        Table<T>* nueva_tabla= new Table<T>(name);
+        tables->push_back(*nueva_tabla);
+       
+        fstream tabla_txt;
+        tabla_txt.open("BasesDeDatos/"+database+"/"+name+".txt",ios::out);
+
+        string nueva_columna;
+        cout<<"\tNo ingrese nada para dejar de insertar columnas"<<endl;
+        do
+        {
+            cout<<"\tColumna: ";
+            getline(cin,nueva_columna);
+            if(nueva_columna != "\0"){
+                (*nueva_tabla).insert(nueva_columna);
+                tabla_txt<<nueva_columna<<"\t\t";
+            }
+            else
+                break;
+        } while (true);
+        tabla_txt.close();
+    }
+
+    void deleteTable(string name){
+        string borrar="BasesDeDatos/"+key+"/"+name+".txt";
+        remove(borrar.c_str());
+    }
+
+    void insertData(string bd){
+        cout<<endl<<"Ingrese la tabla: "<<endl;
+        string _table;
+        getline(cin,_table);
+        typename list<Table <T> >:: iterator it=search(_table);
+        if(it!=tables->end() && (*it).name==_table){
+            (*it).insertData(bd,_table);
+        }
+    }
+
+    typename list<Table <T> >:: iterator search(string _table){
+        for (typename list<Table <T> >:: iterator it = tables->begin(); it != tables->end(); ++it){
+            cout<<(*it).name<<endl;
+            if((*it).name==_table){
+                return it;
+            }
+        }
+        cout<<"No encontrado"<<endl;
+        return tables->end();
+    }
+
+    void printTables(){
+        cout<<endl;
+        for (typename list<Table <T> >:: iterator it = tables->begin(); it != tables->end(); ++it){
+            cout<<"\t\t"<<(*it).name;
+        }
+        cout<<endl;
     }
 };
 
@@ -46,7 +131,7 @@ class Hash
 {
 private:
     int tam;
-    list< Objeto<T> > *tabla;
+    list< Database<T> > *tabla;
     int fd(string key, int n)
     {
         const char *k = key.c_str();
@@ -69,79 +154,87 @@ public:
     {
         //el tamaño sera el siguiente primo de esta manera hay menos coliciones :D
         tam = sigPrimo(t);
-        tabla = new list< Objeto<T> >[tam];
+        tabla = new list< Database<T> >[tam];
     }
+
     int hash(string k)
     {
         return fd(k, tam);
     }
-    void insert(string k, T val)
-    {
-        int indice = fd(k, tam);
-        tabla[indice].push_back(Objeto<T>(k, val));
-        fstream nueva_bd;
-        nueva_bd.open("/Users/eltimo/Documents/3ro primer semestre/BD/ProyectoFinal/Tablas/"+k+".txt",ios::out);
 
+    typename list<Database <T> >:: iterator search(string bd){
+        int indice = fd(bd, tam);
+        for (typename list<Database <T> >:: iterator it = tabla[indice].begin(); it != tabla[indice].end(); ++it){
+            if((*it).key==bd){
+                return it;
+            }
+        }
+        cout<<"No encontrado"<<endl;
+        return tabla[indice].end();
     }
-    void remove(string k)
+
+    void insert(string k)
     {
         int indice = fd(k, tam);
-        list< Objeto<int> >::iterator it;
-        for (it = tabla[indice].begin(); it != tabla[indice].end(); ++it)
+        Database<T> * nueva= new Database<T>(k);
+        tabla[indice].push_back(*nueva);
+
+        string carpeta="mkdir "+k;
+        system(carpeta.c_str());
+        string mover="mv "+k+" BasesDeDatos/"+k;
+        system(mover.c_str());
+        fstream nueva_bd;
+        nueva_bd.open("BasesDeDatos/"+k+"/"+k+".txt",ios::out);
+
+        string nueva_tabla;
+        cout<<"No ingrese nada para dejar de insertar tablas"<<endl;
+        do
         {
-            if((*it).key==k){
-                tabla[indice].erase(it);
+            cout<<"Tabla: ";
+            getline(cin,nueva_tabla);
+            if(nueva_tabla != "\0"){
+                (*nueva).insertTable(nueva_tabla,k);
+                nueva_bd<<nueva_tabla<<"\t\t";
+            }
+            else
                 break;
-            }
-        }
+        } while (true);
+        nueva_bd.close();
     }
-    T search(string k){
-        int indice = fd(k, tam);
-        list< Objeto<int> >::iterator it;
-        for (it = tabla[indice].begin(); it != tabla[indice].end(); ++it)
-        {
-            if((*it).key==k){
-                return (*it).value;
-            }
-        }
-        return -1;
+    void remove(string bd)
+    {
+        string borrar="rm -r BasesDeDatos/"+bd;
+        system(borrar.c_str());
     }
 
     void print()
     {
-        list< Objeto<int> >::iterator it;
         for (int i = 0; i < tam; i++)
         {
-            for (it = tabla[i].begin(); it != tabla[i].end(); ++it)
+            for (typename list<Database <T> >:: iterator it = tabla[i].begin(); it != tabla[i].end(); ++it)
             {
                 if((*it).key!=""){
                     cout << (*it).key << "    ";
-                    cout << (*it).value << endl;
+                    (*it).printTables();
                 }
             }
         }
     }
+
+    void insertData(){
+        cout<<endl<<"Ingrese la base de datos: "<<endl;
+        string bd;
+        getline(cin,bd);
+        typename list<Database <T> >:: iterator it=search(bd);
+        if((*it).key==bd){
+            (*it).insertData(bd);
+        }
+    }
 };
+
 int main()
 {
-    Hash<int> h(10);
-    h.insert("Miriam", 100);
-    h.insert("Noemi", 100);
-    h.insert("Alvaro", 130);
-    h.insert("Joel", 100);
-    h.insert("Benjamin", 100);
-    h.insert("Alejandro", 100);
-    h.insert("Jose", 100);
-    h.insert("Daniel", 100);
-    h.insert("Fernando", 100);
-    h.insert("Alexander", 100);
-    h.insert("Donny", 100);
-    h.print();
-    cout << endl
-         << endl;
-    cout<<"El valor de la llave ingresada es "<<h.search("Alvaro")<<endl;
-    h.remove("Alvaro");
-    h.print();
+    menu();
     return 0;
 }
 
@@ -165,4 +258,45 @@ bool ConsultaPrimo(int num)
                 return false;
         return true;
     }
+}
+
+void menu(){
+    Hash<string> h(17);
+    int opcion;
+    string bd;
+    do
+    {
+        cout<<"¿Que accion desea realizar?"<<endl;
+        cout<<"1 Crear"<<endl;
+        cout<<"2 Insertar"<<endl;
+        cout<<"3 Mostrar"<<endl;
+        cout<<"4 Eliminar"<<endl;
+        cout<<"5 Ninguna"<<endl;
+        cin>>opcion;
+        system("clear");
+        fflush(stdin);
+        switch (opcion)
+        {
+        case 1:
+            cout<<"Nombre de la BD: ";
+            getline(cin,bd);
+            h.insert(bd);
+            break;
+        case 2:
+            h.insertData();
+            break;
+        case 3:
+            h.print();
+            cout<<"Pulse una tecla para continuar"<<endl;
+            cin.get();
+            break;
+        case 4:
+            cout<<"Nombre de la BD: ";
+            getline(cin,bd);
+            h.remove(bd);
+            break;
+        default:
+            break;
+        }
+    } while (opcion!=5);
 }
