@@ -41,8 +41,122 @@ public:
             getline(cin,data);
             archivo<<data<<"\t\t";
         }
-        archivo<<endl;
         archivo.close();
+    }
+
+    void deleteData(string bd,string tabla){
+        fstream archivo,aux;
+        archivo.open("BasesDeDatos/"+bd+"/"+tabla+".txt",ios::in);
+        aux.open("BasesDeDatos/"+bd+"/aux"+".txt",ios::out);
+
+        string _column,_condition,_lectura;
+        cout<<"Columna ";
+        getline(cin,_column);
+        cout<<"Dato ";
+        getline(cin,_condition);
+
+        int eliminar,cont=1;
+        for (list<string>::iterator it = colums->begin(); it != colums->end(); ++it)
+        {
+            archivo>>_lectura;
+            aux<<_lectura<<"\t\t";
+            if(_lectura==_column)
+                eliminar=cont;
+            cont++;
+        }
+        while(!archivo.eof()){
+            string _ingreso="";
+            bool _find=false;
+            for(int i=0;i<eliminar;i++){
+                archivo>>_lectura;
+                if(i==eliminar-1 && _lectura==_condition){
+                    _find=true;
+                    _ingreso+=_lectura;
+                }
+                else if(i==eliminar-1){
+                    _ingreso+=_lectura;
+                }
+                else{
+                    _ingreso+=_lectura+"\t\t";
+                }
+            }
+
+            getline(archivo,_lectura);
+            if(_find!=true){
+                aux<<endl<<_ingreso;
+                aux<<_lectura;
+            }       
+        }
+
+        archivo.close();
+        aux.close();
+
+        string _remove="BasesDeDatos/"+bd+"/"+tabla+".txt";
+        string _rename="BasesDeDatos/"+bd+"/aux"+".txt";
+        remove(_remove.c_str());                    
+        rename(_rename.c_str(), _remove.c_str());
+    }
+
+    void updateData(string bd,string tabla){
+        fstream archivo,aux;
+        archivo.open("BasesDeDatos/"+bd+"/"+tabla+".txt",ios::in);
+        aux.open("BasesDeDatos/"+bd+"/aux"+".txt",ios::out);
+
+        string _column,_condition,_nuevo,_lectura;
+        cout<<"Columna ";
+        getline(cin,_column);
+        cout<<"Dato a reemplazar ";
+        getline(cin,_condition);
+        cout<<"Dato nuevo ";
+        getline(cin,_nuevo);
+
+        int eliminar,cont=1;
+        for (list<string>::iterator it = colums->begin(); it != colums->end(); ++it)
+        {
+            archivo>>_lectura;
+            aux<<_lectura<<"\t\t";
+            if(_lectura==_column)
+                eliminar=cont;
+            cont++;
+        }
+        while(!archivo.eof()){
+            string _ingreso="";
+            bool _find=false;
+            for(int i=0;i<eliminar;i++){
+                archivo>>_lectura;
+                if(i==eliminar-1 && _lectura==_condition){
+                    _find=true;
+                    _ingreso+=_nuevo;
+                }
+                else if(i==eliminar-1){
+                    _ingreso+=_lectura;
+                }
+                else{
+                    _ingreso+=_lectura+"\t\t";
+                }
+            }
+            getline(archivo,_lectura);
+            aux<<endl<<_ingreso;
+            aux<<_lectura;   
+        }
+        archivo.close();
+        aux.close();
+
+        string _remove="BasesDeDatos/"+bd+"/"+tabla+".txt";
+        string _rename="BasesDeDatos/"+bd+"/aux"+".txt";
+        remove(_remove.c_str());                    
+        rename(_rename.c_str(), _remove.c_str());
+    }
+
+    void printData(string bd,string tabla){
+        fstream archivo,aux;
+        archivo.open("BasesDeDatos/"+bd+"/"+tabla+".txt",ios::in);
+
+        string _lectura;
+        while(!archivo.eof()){
+            getline(archivo,_lectura);
+            cout<<_lectura<<endl;
+        }
     }
 };
 
@@ -91,24 +205,55 @@ public:
         tabla_txt.close();
     }
 
-    void deleteTable(string name){
-        string borrar="BasesDeDatos/"+key+"/"+name+".txt";
+    void deleteTable(string _table){
+        string borrar="BasesDeDatos/"+key+"/"+_table+".txt";
         remove(borrar.c_str());
     }
 
-    void insertData(string bd){
+    void deleteData(string _bd){
+        string _table;
+        cout<<"Ingrese la tabla: "<<endl;
+        getline(cin,_table);
+
+        typename list<Table <T> >:: iterator it=search(_table);
+        if(it!=tables->end() && (*it).name==_table){
+            (*it).deleteData(_bd,_table);
+        }
+
+    }
+
+    void insertData(string _bd){
         cout<<endl<<"Ingrese la tabla: "<<endl;
         string _table;
         getline(cin,_table);
         typename list<Table <T> >:: iterator it=search(_table);
         if(it!=tables->end() && (*it).name==_table){
-            (*it).insertData(bd,_table);
+            (*it).insertData(_bd,_table);
+        }
+    }
+
+    void updateData(string _bd){
+        cout<<endl<<"Ingrese la tabla: "<<endl;
+        string _table;
+        getline(cin,_table);
+        typename list<Table <T> >:: iterator it=search(_table);
+        if(it!=tables->end() && (*it).name==_table){
+            (*it).updateData(_bd,_table);
+        }
+    }
+
+    void printData(string _bd){
+        cout<<endl<<"Ingrese la tabla: "<<endl;
+        string _table;
+        getline(cin,_table);
+        typename list<Table <T> >:: iterator it=search(_table);
+        if(it!=tables->end() && (*it).name==_table){
+            (*it).printData(_bd,_table);
         }
     }
 
     typename list<Table <T> >:: iterator search(string _table){
         for (typename list<Table <T> >:: iterator it = tables->begin(); it != tables->end(); ++it){
-            cout<<(*it).name<<endl;
             if((*it).name==_table){
                 return it;
             }
@@ -162,10 +307,10 @@ public:
         return fd(k, tam);
     }
 
-    typename list<Database <T> >:: iterator search(string bd){
-        int indice = fd(bd, tam);
+    typename list<Database <T> >:: iterator search(string _bd){
+        int indice = fd(_bd, tam);
         for (typename list<Database <T> >:: iterator it = tabla[indice].begin(); it != tabla[indice].end(); ++it){
-            if((*it).key==bd){
+            if((*it).key==_bd){
                 return it;
             }
         }
@@ -221,6 +366,16 @@ public:
         }
     }
 
+    void printData(){
+        cout<<endl<<"Ingrese la base de datos: "<<endl;
+        string bd;
+        getline(cin,bd);
+        typename list<Database <T> >:: iterator it=search(bd);
+        if((*it).key==bd){
+            (*it).printData(bd);
+        }
+    }
+
     void insertData(){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
@@ -228,6 +383,26 @@ public:
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
             (*it).insertData(bd);
+        }
+    }
+
+    void deleteData(){
+        cout<<endl<<"Ingrese la base de datos: "<<endl;
+        string bd;
+        getline(cin,bd);
+        typename list<Database <T> >:: iterator it=search(bd);
+        if((*it).key==bd){
+            (*it).deleteData(bd);
+        }
+    }
+
+    void updateData(){
+        cout<<endl<<"Ingrese la base de datos: "<<endl;
+        string bd;
+        getline(cin,bd);
+        typename list<Database <T> >:: iterator it=search(bd);
+        if((*it).key==bd){
+            (*it).updateData(bd);
         }
     }
 };
@@ -271,7 +446,8 @@ void menu(){
         cout<<"2 Insertar"<<endl;
         cout<<"3 Mostrar"<<endl;
         cout<<"4 Eliminar"<<endl;
-        cout<<"5 Ninguna"<<endl;
+        cout<<"5 Actualizar"<<endl;
+        cout<<"6 Ninguna"<<endl;
         cin>>opcion;
         system("clear");
         fflush(stdin);
@@ -286,17 +462,22 @@ void menu(){
             h.insertData();
             break;
         case 3:
-            h.print();
+            h.printData();
             cout<<"Pulse una tecla para continuar"<<endl;
             cin.get();
             break;
         case 4:
-            cout<<"Nombre de la BD: ";
-            getline(cin,bd);
-            h.remove(bd);
+            // cout<<"Nombre de la BD: ";
+            // getline(cin,bd);
+            // h.remove(bd);
+            h.deleteData();
+            break;
+        case 5:
+            h.updateData();
             break;
         default:
             break;
         }
-    } while (opcion!=5);
+    } while (opcion!=6);
 }
+//ordenar, modificar, consultas a una tabla
