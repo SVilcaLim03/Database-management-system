@@ -2,6 +2,7 @@
 #include <math.h>
 #include <list>
 #include <fstream>
+#include "adaptarSistemasOp.h"
 
 using namespace std;
 
@@ -326,7 +327,10 @@ public:
 
         string carpeta="mkdir "+k;
         system(carpeta.c_str());
-        string mover="mv "+k+" BasesDeDatos/"+k;
+        string mover = "";
+        mover += MOVER;
+        mover += " ";
+        mover += k+" BasesDeDatos/"+k;
         system(mover.c_str());
         fstream nueva_bd;
         nueva_bd.open("BasesDeDatos/"+k+"/"+k+".txt",ios::out);
@@ -449,7 +453,7 @@ void menu(){
         cout<<"5 Actualizar"<<endl;
         cout<<"6 Ninguna"<<endl;
         cin>>opcion;
-        system("clear");
+        system(LIMPIAR);
         fflush(stdin);
         switch (opcion)
         {
