@@ -2,7 +2,8 @@
 #include <math.h>
 #include <list>
 #include <fstream>
-#include "adaptarSistemasOp.h"
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -29,6 +30,18 @@ public:
     }
     void insert(string columna){
         colums->push_back(columna);
+    }
+
+    void selectfrom(string rows, string bd, string tb)
+    {
+        ifstream archivo("BasesDeDatos/"+bd+"/"+tb+".txt");
+        ifstream aux;
+        string _lectura((std::istreambuf_iterator<char>(archivo)),
+                 std::istreambuf_iterator<char>());
+        if (rows=="*")
+        {
+            cout<<_lectura;
+        }
     }
 
     void insertData(string bd,string tabla){
@@ -223,6 +236,14 @@ public:
 
     }
 
+    void selectfrom(string rows, string bd, string tb)
+    {
+        typename list<Table <T> >:: iterator it=search(tb);
+        if(it!=tables->end() && (*it).name==tb){
+            (*it).selectfrom(rows,bd,tb);
+        }
+    }
+
     void insertData(string _bd){
         cout<<endl<<"Ingrese la tabla: "<<endl;
         string _table;
@@ -328,9 +349,8 @@ public:
         string carpeta="mkdir "+k;
         system(carpeta.c_str());
         string mover = "";
-        mover += MOVER;
-        mover += " ";
-        mover += k+" BasesDeDatos/"+k;
+        mover += "move ";
+        mover += k+" BasesDeDatos/";
         system(mover.c_str());
         fstream nueva_bd;
         nueva_bd.open("BasesDeDatos/"+k+"/"+k+".txt",ios::out);
@@ -373,11 +393,22 @@ public:
     void printData(){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
-        getline(cin,bd);
+        cin>> bd;
+        cout<<bd;
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
             (*it).printData(bd);
         }
+    }
+
+    void selectfrom(string rows, string bd, string tb)
+    {
+        typename list<Database <T> >:: iterator it=search(bd);
+        if ((*it).key==bd)
+        {
+            (*it).selectfrom(rows, bd, tb);
+        }
+        
     }
 
     void insertData(){
@@ -442,7 +473,7 @@ bool ConsultaPrimo(int num)
 void menu(){
     Hash<string> h(17);
     int opcion;
-    string bd;
+    string bd, tb;
     do
     {
         cout<<"¿Que accion desea realizar?"<<endl;
@@ -453,7 +484,7 @@ void menu(){
         cout<<"5 Actualizar"<<endl;
         cout<<"6 Ninguna"<<endl;
         cin>>opcion;
-        system(LIMPIAR);
+        system("cls");
         fflush(stdin);
         switch (opcion)
         {
@@ -466,9 +497,14 @@ void menu(){
             h.insertData();
             break;
         case 3:
+            cout<<"Elija que tablas de la base de datos desee mostrar"<<endl;
+            cout<<"Base de Datos"<<endl;
+            cin>>bd;
+            cout<<"Tabla"<<endl;
+            cin>>tb;
+            h.selectfrom("*",bd,tb);
             h.printData();
             cout<<"Pulse una tecla para continuar"<<endl;
-            cin.get();
             break;
         case 4:
             // cout<<"Nombre de la BD: ";
