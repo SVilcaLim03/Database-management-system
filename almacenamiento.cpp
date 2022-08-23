@@ -3,6 +3,7 @@
 #include <list>
 #include <fstream>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -33,9 +34,10 @@ public:
 
     void selectfrom(string rows, string bd, string tb)
     {
-        ifstream archivo("BasesDeDatos/"+bd+"/"+tb+".txt"), aux;
-        string const _lectura = static_cast<std::ostringstream&>
-        (ostringstream{} << n_infix.rdbuf()).str();
+        ifstream archivo("BasesDeDatos/"+bd+"/"+tb+".txt");
+        ifstream aux;
+        string _lectura((std::istreambuf_iterator<char>(archivo)),
+                 std::istreambuf_iterator<char>());
         if (rows=="*")
         {
             cout<<_lectura;

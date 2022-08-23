@@ -5,6 +5,7 @@
         "list": "cpp",
         "sstream": "cpp",
         "fstream": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "iterator": "cpp"
     }
 }
