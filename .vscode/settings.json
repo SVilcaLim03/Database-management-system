@@ -6,6 +6,9 @@
         "sstream": "cpp",
         "fstream": "cpp",
         "iosfwd": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "unordered_set": "cpp",
+        "xhash": "cpp",
+        "xutility": "cpp"
     }
 }

@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <unordered_set>
+#include <unordered_map>
 
 using namespace std;
 
@@ -183,6 +185,8 @@ private:
     
     template <typename U>
     friend class Hash;
+    template <typename T>
+    friend class LRUcache;
 
 public:
     Database()
@@ -441,6 +445,91 @@ public:
         }
     }
 };
+
+template <typename T>
+class LRUcache
+{
+private:
+    list< Table<T> > *dq;
+    unordered_map<int, list<int>::iterator> ma;
+
+    int csize;
+
+public:
+    LRUcache(int t, Database<T> database)
+    {
+        dq=&database->tables;
+        csize = t;
+    }
+
+    void refer(int x)
+    {
+        if (ma.find(x)==ma.end())
+        {
+            if (dq->size()==csize)
+            {
+                int last == dq.back();
+
+                dq.pop_back();
+                ma.erase(last);
+            }
+        }
+        else
+        {
+            dq.erase(ma[x]);
+        }
+        dq.push_front(x);
+        ma[x] = dq.begin();
+    }
+};
+
+int pageFaults(int pages[], int n, int capacity)
+{
+    unordered_set<int> s;
+ 
+    unordered_map<int, int> indexes;
+ 
+    int page_faults = 0;
+    for (int i=0; i<n; i++)
+    {
+        if (s.size() < capacity)
+        {
+            if (s.find(pages[i])==s.end())
+            {
+                s.insert(pages[i]);
+ 
+                page_faults++;
+            }
+ 
+            indexes[pages[i]] = i;
+        }
+        else
+        {
+            if (s.find(pages[i]) == s.end())
+            {
+                int lru = INT_MAX, val;
+                for (auto it=s.begin(); it!=s.end(); it++)
+                {
+                    if (indexes[*it] < lru)
+                    {
+                        lru = indexes[*it];
+                        val = *it;
+                    }
+                }
+ 
+                s.erase(val);
+ 
+                s.insert(pages[i]);
+ 
+                page_faults++;
+            }
+ 
+            indexes[pages[i]] = i;
+        }
+    }
+ 
+    return page_faults;
+}
 
 int main()
 {
