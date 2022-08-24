@@ -132,3 +132,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+BasesDeDatos
+almacenamiento.ilk
+almacenamiento.pdb
+DatabseEXP.txt
+vc140.pdb
