@@ -512,7 +512,7 @@ public:
         
     }
 
-    void insertData(string &dbName, string &dbCopy = "", bool &backupCreado = false){
+    void insertData(string &dbName = "", string &dbCopy = "", bool &backupCreado = false){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
         getline(cin,bd);
@@ -533,7 +533,7 @@ public:
         }
     }
 
-    void deleteData(string &dbName, string &dbCopy = "", bool &backupCreado = false){
+    void deleteData(string &dbName = "", string &dbCopy = "", bool &backupCreado = false){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
         getline(cin,bd);
@@ -553,7 +553,7 @@ public:
         }
     }
 
-    void updateData(string &dbName, string &dbCopy = "", bool &backupCreado = false){
+    void updateData(string &dbName = "", string &dbCopy = "", bool &backupCreado = false){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
         getline(cin,bd);
