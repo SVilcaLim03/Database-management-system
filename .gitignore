@@ -8,6 +8,9 @@
 *.o
 *.obj
 *.exe
+*.ilk
+*.pdb
+
 
 # Precompiled Headers
 *.gch
@@ -132,3 +135,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+BasesDeDatos
+DatabseEXP.txt
+vc140.pdb
