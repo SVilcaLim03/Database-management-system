@@ -29,12 +29,11 @@ class Transaction{
 public:
     Transaction() {}
     ~Transaction() {}
-    void startTransaction(Hash<T>);
-    void endTransaction(Hash<T>);
+    void startTransaction(Hash<T>&);
 };
 
 template <class T>
-void Transaction<T>::startTransaction(Hash<T> h){
+void Transaction<T>::startTransaction(Hash<T> &h){
     cout << "Iniciando transaccion" << endl;
     int option;
     vector<string> transactionOperations;
@@ -78,11 +77,18 @@ void Transaction<T>::startTransaction(Hash<T> h){
                     }
                     case 3: {
                         transactionOperations.push_back("Delete");
-                        h.removeData(dbName, dbCopy, backupCreado);
+                        h.deleteData(dbName, dbCopy, backupCreado);
                         break;
                     }
                     case 4: {
-                        h.selectData();
+                        cout<<"Elija que tablas de la base de datos desee mostrar"<<endl;
+                        cout<<"Base de Datos"<<endl;
+                        cin>>bd;
+                        cout<<"Tabla"<<endl;
+                        cin>>tb;
+                        h.selectfrom("*",bd,tb);
+                        h.printData();
+                        cout<<"Pulse una tecla para continuar"<<endl;
                         break;
                     }
                     default:
@@ -640,6 +646,7 @@ bool ConsultaPrimo(int num)
 }
 
 void menu(){
+    Transaction<string> transacciones;
     Hash<string> h(17);
     int opcion;
     string bd, tb;
@@ -662,6 +669,7 @@ void menu(){
             cout<<"Desea crear una transaccion? (s/n)"<<endl; cin>>c;
             if(c=='s' || c=='S'){
                 cout << "Se esta creando una transaccion" << endl;
+                transacciones.startTransaction(h);
             }
             else{
                 cout << "Se esta creando una base de datos" << endl;
