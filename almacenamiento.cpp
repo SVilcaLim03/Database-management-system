@@ -12,6 +12,37 @@ bool ConsultaPrimo(int num);
 int sigPrimo(int val);
 int fd(string key, int n);
 
+template <class T>
+class Table;
+
+template <class T>
+class Database;
+
+template <class T>
+class Transaction{
+public:
+    Transaction() {}
+    ~Transaction() {}
+    void startTransaction(Database<T> *db);
+    void endTransaction(Database<T> *db);
+    void commit();
+    void rollback();
+    void insert(string key, T value);
+    void update(string key, T value);
+    void remove(string key);
+    void select(string key);
+};
+
+template <class T>
+void Transaction<T>::startTransaction(Database<T> *db){
+    cout << "Iniciando transaccion" << endl;
+    cout << "Ingrese que operacion desea poner en la transaccion" << endl;
+    cout << "1. Insertar" << endl;
+    cout << "2. Actualizar" << endl;
+    cout << "3. Eliminar" << endl;
+    cout << "4. Consultar" << endl;
+}
+
 template<typename T>
 class Table{
 private:
@@ -489,9 +520,19 @@ void menu(){
         switch (opcion)
         {
         case 1:
-            cout<<"Nombre de la BD: ";
-            getline(cin,bd);
-            h.insert(bd);
+            char c;
+            cout<<"Desea crear una transaccion? (s/n)"<<endl; cin>>c;
+            if(c=='s' || c=='S'){
+                cout << "Se esta creando una transaccion" << endl;
+
+            }
+            else{
+                cout << "Se esta creando una base de datos" << endl;
+                cout << "Ingrese el nombre de la base de datos" << endl;
+                cin.ignore();
+                getline(cin,bd);
+                h.insert(bd);
+            }
             break;
         case 2:
             h.insertData();
