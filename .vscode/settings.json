@@ -9,6 +9,7 @@
         "iterator": "cpp",
         "unordered_set": "cpp",
         "xhash": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "iostream": "cpp"
     }
 }

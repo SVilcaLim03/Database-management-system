@@ -2,17 +2,21 @@
 #include <math.h>
 #include <list>
 #include <fstream>
+#include <vector>
 #include <string>
 #include <sstream>
 #include <unordered_set>
 #include <unordered_map>
-
+#include "adaptarSistemasOp.h"
 using namespace std;
 
 void menu();
 bool ConsultaPrimo(int num);
 int sigPrimo(int val);
 int fd(string key, int n);
+
+template<class T>
+class Hash;
 
 template <class T>
 class Table;
@@ -25,24 +29,86 @@ class Transaction{
 public:
     Transaction() {}
     ~Transaction() {}
-    void startTransaction(Database<T> *db);
-    void endTransaction(Database<T> *db);
-    void commit();
-    void rollback();
-    void insert(string key, T value);
-    void update(string key, T value);
-    void remove(string key);
-    void select(string key);
+    void startTransaction(Hash<T>);
+    void endTransaction(Hash<T>);
 };
 
 template <class T>
-void Transaction<T>::startTransaction(Database<T> *db){
+void Transaction<T>::startTransaction(Hash<T> h){
     cout << "Iniciando transaccion" << endl;
-    cout << "Ingrese que operacion desea poner en la transaccion" << endl;
-    cout << "1. Insertar" << endl;
-    cout << "2. Actualizar" << endl;
-    cout << "3. Eliminar" << endl;
-    cout << "4. Consultar" << endl;
+    int option;
+    vector<string> transactionOperations;
+    string dbCopy = "databaseCopy";
+    string dbName = "";
+    bool backupCreado = false;
+    do {
+        system(LIMPIAR);
+        cout << "LISTA DE OPERACIONES" << endl;
+        for (int i = 0; i < transactionOperations.size(); i++) {
+            cout << i+1 << ". " << transactionOperations[i] << endl;
+        }
+        cout << "\n1. Agregar operacion a la transaccion" << endl;
+        cout << "2. Hacer commit" << endl;
+        cout << "3. Hacer rollback" << endl;
+        cout << "Ingrese una opcion o deje en blanco para salir: ";
+        cin.ignore();
+        getline(cin, option);
+        switch (option) {
+            case 1: {
+                system(LIMPIAR);
+                cout << "Ingrese que operacion desea poner en la transaccion" << endl;
+                cout << "1. Insertar" << endl;
+                cout << "2. Actualizar" << endl;
+                cout << "3. Eliminar" << endl;
+                cout << "4. Consultar" << endl;
+
+                cout << "Ingrese una opcion o deje en blanco para salir: ";
+                cin.ignore();
+                getline(cin, option);
+                switch (option) {
+                    case 1: {
+                        transactionOperations.push_back("Insert");
+                        h.insertData(dbName, dbCopy, backupCreado);
+                        break;
+                    }
+                    case 2: {
+                        transactionOperations.push_back("Update");
+                        h.updateData(dbbName, dbCopy, backupCreado);
+                        break;
+                    }
+                    case 3: {
+                        transactionOperations.push_back("Delete");
+                        h.removeData(dbName, dbCopy, backupCreado);
+                        break;
+                    }
+                    case 4: {
+                        h.selectData();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                break;
+            }
+            case 2: {
+                cout << "Haciendo commit" << endl;
+                system("rmdir TemporaryFiles\\" + dbCopy + " /s /q");
+                transactionOperations.clear();
+                break;
+            }
+            case 3: {
+                cout << "Haciendo rollback" << endl;
+                system("rmdir BasesDeDatos\\" + dbName + " /s /q");
+                system("xcopy TemporaryFiles\\" + dbCopy + " " + "BasesDeDatos\\" + dbName + " /E /I /Y");
+                system("ren BasesDeDatos\\" + dbCopy + " " + dbName);
+                system("rmdir TemporaryFiles\\" + dbCopy + " /s /q");
+                transactionOperations.clear();
+                break;
+            }
+            default:
+                break;
+        }
+    } while (option != '\0');
 }
 
 template<typename T>
@@ -446,32 +512,63 @@ public:
         
     }
 
-    void insertData(){
+    void insertData(string &dbName, string &dbCopy = "", bool &backupCreado = false){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
         getline(cin,bd);
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
+            if (dbCopy != "" && dbCopy != bd) {
+                cout<<"Solo se puede modificar una Base de datos a la vez en una transaccion"<<endl;
+                return;
+            }
+            if (dbCopy != "" && !backupCreado)) {
+                dbName = bd;
+                system("mkdir TemporaryFiles\\"+dbCopy);
+                system("xcopy BasesDeDatos\\"+bd+" TemporaryFiles\\"+dbCopy+" /E /I /Y");
+                backupCreado = true;
+            }
+            bd_name = bd;
             (*it).insertData(bd);
         }
     }
 
-    void deleteData(){
+    void deleteData(string &dbName, string &dbCopy = "", bool &backupCreado = false){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
         getline(cin,bd);
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
+            if (dbCopy != "" && dbCopy != bd) {
+                cout<<"Solo se puede modificar una Base de datos a la vez en una transaccion"<<endl;
+                return;
+            }
+            if (dbCopy != "" && !backupCreado)) {
+                dbName = bd;
+                system("mkdir TemporaryFiles\\"+dbCopy);
+                system("xcopy BasesDeDatos\\"+bd+" TemporaryFiles\\"+dbCopy+" /E /I /Y");
+                backupCreado = true;
+            }
             (*it).deleteData(bd);
         }
     }
 
-    void updateData(){
+    void updateData(string &dbName, string &dbCopy = "", bool &backupCreado = false){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
         getline(cin,bd);
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
+            if (dbCopy != "" && dbCopy != bd) {
+                cout<<"Solo se puede modificar una Base de datos a la vez en una transaccion"<<endl;
+                return;
+            }
+            if (dbCopy != "" && !backupCreado)) {
+                dbName = bd;
+                system("mkdir TemporaryFiles\\"+dbCopy);
+                system("xcopy BasesDeDatos\\"+bd+" TemporaryFiles\\"+dbCopy+" /E /I /Y");
+                backupCreado = true;
+            }
             (*it).updateData(bd);
         }
     }
@@ -613,7 +710,6 @@ void menu(){
             cout<<"Desea crear una transaccion? (s/n)"<<endl; cin>>c;
             if(c=='s' || c=='S'){
                 cout << "Se esta creando una transaccion" << endl;
-
             }
             else{
                 cout << "Se esta creando una base de datos" << endl;
