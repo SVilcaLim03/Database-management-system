@@ -662,6 +662,8 @@ void menu(){
         cin>>opcion;
         system("cls");
         fflush(stdin);
+        bool backupCreado = false;
+        string dbName = "", dbCopy = "";
         switch (opcion)
         {
         case 1:
@@ -680,7 +682,7 @@ void menu(){
             }
             break;
         case 2:
-            h.insertData();
+            h.insertData(bd, dbCopy, backupCreado);
             break;
         case 3:
             cout<<"Elija que tablas de la base de datos desee mostrar"<<endl;
@@ -696,10 +698,10 @@ void menu(){
             // cout<<"Nombre de la BD: ";
             // getline(cin,bd);
             // h.remove(bd);
-            h.deleteData();
+            h.deleteData(dbName, dbCopy, backupCreado);
             break;
         case 5:
-            h.updateData();
+            h.updateData(dbName, dbCopy, backupCreado);
             break;
         default:
             break;

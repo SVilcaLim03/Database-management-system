@@ -10,6 +10,7 @@
         "unordered_set": "cpp",
         "xhash": "cpp",
         "xutility": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "ostream": "cpp"
     }
 }
