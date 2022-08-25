@@ -85,7 +85,7 @@ public:
         {
             string data;
             cout<<(*it)<<": ";
-            getline(cin,data);
+            cin>>data;
             archivo<<data<<"\t\t";
         }
         archivo.close();
@@ -98,9 +98,9 @@ public:
 
         string _column,_condition,_lectura;
         cout<<"Columna ";
-        getline(cin,_column);
+        cin>>_column;
         cout<<"Dato ";
-        getline(cin,_condition);
+        cin>>_condition;
 
         int eliminar,cont=1;
         for (list<string>::iterator it = colums->begin(); it != colums->end(); ++it)
@@ -151,11 +151,11 @@ public:
 
         string _column,_condition,_nuevo,_lectura;
         cout<<"Columna ";
-        getline(cin,_column);
+        cin>>_column;
         cout<<"Dato a reemplazar ";
-        getline(cin,_condition);
+        cin>>_condition;
         cout<<"Dato nuevo ";
-        getline(cin,_nuevo);
+        cin>>_nuevo;
 
         int eliminar,cont=1;
         for (list<string>::iterator it = colums->begin(); it != colums->end(); ++it)
@@ -262,7 +262,7 @@ public:
     void deleteData(string _bd){
         string _table;
         cout<<"Ingrese la tabla: "<<endl;
-        getline(cin,_table);
+        cin>>_table;
 
         typename list<Table <T> >:: iterator it=search(_table);
         if(it!=tables->end() && (*it).name==_table){
@@ -282,7 +282,7 @@ public:
     void insertData(string _bd){
         cout<<endl<<"Ingrese la tabla: "<<endl;
         string _table;
-        getline(cin,_table);
+        cin>>_table;
         typename list<Table <T> >:: iterator it=search(_table);
         if(it!=tables->end() && (*it).name==_table){
             (*it).insertData(_bd,_table);
@@ -292,7 +292,7 @@ public:
     void updateData(string _bd){
         cout<<endl<<"Ingrese la tabla: "<<endl;
         string _table;
-        getline(cin,_table);
+        cin>>_table;
         typename list<Table <T> >:: iterator it=search(_table);
         if(it!=tables->end() && (*it).name==_table){
             (*it).updateData(_bd,_table);
@@ -389,6 +389,8 @@ public:
         system(mover.c_str());
         fstream nueva_bd;
         nueva_bd.open("BasesDeDatos/"+k+"/"+k+".txt",ios::out);
+        fstream save_new_bd("BasesDeDatos/DBs.txt");
+        save_new_bd<<"\t"<<k<<"\t";
 
         string nueva_tabla;
         cout<<"No ingrese nada para dejar de insertar tablas"<<endl;
@@ -449,7 +451,7 @@ public:
     void insertData(){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
-        getline(cin,bd);
+        cin>>bd;
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
             (*it).insertData(bd);
@@ -459,7 +461,7 @@ public:
     void deleteData(){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
-        getline(cin,bd);
+        cin>>bd;
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
             (*it).deleteData(bd);
@@ -469,7 +471,7 @@ public:
     void updateData(){
         cout<<endl<<"Ingrese la base de datos: "<<endl;
         string bd;
-        getline(cin,bd);
+        cin>>bd;
         typename list<Database <T> >:: iterator it=search(bd);
         if((*it).key==bd){
             (*it).updateData(bd);
@@ -543,6 +545,7 @@ bool ConsultaPrimo(int num)
 }
 
 void menu(){
+    ofstream databases ("BasesDeDatos/DBs.txt");
     Hash<string> h(17);
     int opcion;
     string bd, tb;

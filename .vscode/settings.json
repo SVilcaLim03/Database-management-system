@@ -1,14 +1,5 @@
 {
     "files.associations": {
-        "string": "cpp",
-        "xstring": "cpp",
-        "list": "cpp",
-        "sstream": "cpp",
-        "fstream": "cpp",
-        "iosfwd": "cpp",
-        "iterator": "cpp",
-        "unordered_set": "cpp",
-        "xhash": "cpp",
-        "xutility": "cpp"
+        "xstring": "cpp"
     }
 }
